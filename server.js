@@ -3,13 +3,7 @@ fs =    require('fs');         // required to read certs and keys
 var express = require('express');
 var app = express();
 
-/*app.get('/', function (req, res) {
-  res.setHeader('Content-Type','text/html')
-  res.render('public/index.html');
-});*/
-
 app.use(express.static('public'));
-
 
 var options = {
     key:    fs.readFileSync('private/server.key'),
