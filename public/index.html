@@ -22,31 +22,44 @@ canvas[resize] {
 <!-- Define inlined PaperScript associate it with myCanvas -->
 <script type="text/paperscript" canvas="myCanvas">
 	
-	var circleCenter = new Point(150,150);
+	var pathCenter = new Point(150,150);
 		var circle = new Path.Circle({
-		center: circleCenter,
-		radius: 70,
-		fillColor: 'red'
+		center: pathCenter,
+		radius: 50,
+		fillColor: 'blue'
 		});
+		
 	var speed = 100;
 	var destination = 0
+	var vector = 0
+	var light = 0.5
+	var snake = [circle];
+	for(var i = 0; i<30; i++)
+	{snake.push(circle.clone());}
 	
+		
+	function onMouseUp(event) {
+		vector = event.point - circle.position;
+		vector.length = 32;
+	}
 	function onFrame(event) {
-	// Each frame, change the fill color of the path slightly by
-	// adding 1 to its hue:
-		circle.fillColor.hue += 0.1;
-		
-		/*var vector = destination - text.position;
 	
-		// We add 1/30th of the vector to the position property
-		// of the text item, to move it in the direction of the
-		// destination point:
-		text.position += vector / 30;
+		light = Math.random();
 		
-		// Set the content of the text item to be the length of the vector.
-		// I.e. the distance it has to travel still:
-		text.content = Math.round(vector.length);
-		*/
+		if(light < 0.3)
+		light = 0.3
+		else if(light > 0.7)
+		light = 0.7
+		
+		circle.fillColor.lightness = light;
+		circle.position += vector;
+		
+		
+		snake.push(circle.clone());
+		console.log(snake.length);
+	    snake.splice(1,1)[0].remove();
+		console.log(snake.length);
+			
 		
 	}
 /*	// Fonction dessin manuel cercle
@@ -63,7 +76,7 @@ canvas[resize] {
 */
 </script>
 <body>
- <canvas id="myCanvas" resize=true></canvas>
+ <canvas id="myCanvas" resize></canvas>
 </body>
 </head>
 </html>
