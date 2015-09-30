@@ -31,57 +31,63 @@ canvas {
 <!-- Define inlined PaperScript associate it with myCanvas -->
 <script type="text/paperscript" canvas="myCanvas">
 	
+	// Départ, couleur et direction aléatoire
 	var random = new Point(Math.random()*1272,Math.random()*632);
-	
 	var randomColor = new Color(Math.random(),Math.random(),Math.random())
-	var pathCenter = new Point(100+Math.random()*1072,100+Math.random()*432);
-		var circle = new Path.Circle({
-		center: pathCenter,
-		radius: 6,
-		fillColor: randomColor
-		});
+	var headCenter = new Point(100+Math.random()*1072,100+Math.random()*432);
 	
-		
-	var speed = 2;
 	var vector = 0;
-	
 	vector = random - circle.position;
 	vector.length = speed;
 	
-	var light = 0.5;
+	// Tête du serpent
+		var circle = new Path.Circle({
+		center: headCenter,
+		radius: 6,
+		fillColor: randomColor
+		});
+		
+	// Variables du jeu
+	var speed = 2;
+	
+	// Construction du serpent par clonage de la tête
 	var snake = [circle];
 	for(var i = 0; i<10; i++)
 	{snake.push(circle.clone());}
 	
-	var localData = [vector,circle];
+	// Tableaux de communication client/serveur
+	var allSnakes;
+	var localData;
 	
 	function onMouseUp(event) {
+		// Génération d'un vecteur entre la pos. actuelle et la pos. désirée
 		vector = event.point - circle.position;
 		vector.length = speed;
 		
+		// Envoi de la tête et du vecteur au serveur pour transmission à autres clients
+		localData=[snake[0],vector];
 		ws.send(localData);
 	}
 	
-	function onFrame(event) {
-	
-		ws.onmessage = function(msg) {
-		console.log('Received message from server: ' + msg.data);
-		
+	// Ici, on reçoit le broadcast du serveur
+	ws.onmessage = function(msg) {
+			console.log('Received message from server: ' + msg.data);
+			// On veut update le déplacement de tous les snakes - Non fonctionnel
+			allSnakes = msg.data;
 		}
 		
-		light = Math.random();
-		
-		if(light < 0.40)
-		light = 0.40;
-		else if(light > 0.60)
-		light = 0.60;
-		
-		<!-- circle.fillColor.lightness = light;
-		
-		circle.position += vector;
-		
-		snake.push(circle.clone());
-	    snake.splice(1,1)[0].remove();
+	function onFrame(event) {
+	
+		// Non fonctionnel actuellement
+		for(var i in msg.data)
+		{
+			// Ajouter le vecteur à la position du cercle (Déplacement tête)
+			allSnakes[i] += vector;
+			// Ajout d'un nouveau clone du cercle (Gestion queue n1")
+			snake.push(circle.clone());
+			// Suppression du clone le plus ancien (Gestion queue n2")
+			snake.splice(1,1)[0].remove();
+		}
 	}
 	
 </script>
