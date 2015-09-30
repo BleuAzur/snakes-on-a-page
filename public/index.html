@@ -22,6 +22,16 @@ canvas {
 </style>
 
 <head>
+
+<!-- WebSocket client side -->
+<script type="text/javascript" >
+
+	var WebSocket = require('ws')
+	  , ws = new WebSocket('https://localhost:3250/');
+	
+	
+</script>
+
 <!-- Load the Paper.js library -->
 <script type="text/javascript" src="js/paper.js"></script>
 <!-- Define inlined PaperScript associate it with myCanvas -->
@@ -43,22 +53,27 @@ canvas {
 	
 		
 	function onMouseMove(event) {
-		vector = event.point - circle.position;
-		vector.length = speed;
+		
 	}
 	
-	// DEBUG
 	function onMouseUp(event) {
+	
+		vector = event.point - circle.position;
+		vector.length = speed;
 		
-		snake.push(circle.clone());
-		snake.push(circle.clone());
-		snake.push(circle.clone());
-		snake.push(circle.clone());
-		snake.push(circle.clone());
+		<!-- DEBUG temporaire -->
+		ws.on('open', function() {
+		ws.send('CLIC SOURIS');
+	});
+	
 	}
 	
 	function onFrame(event) {
 		
+	ws.on('message', function(message) {
+		console.log('MOUVEMENTS SNAKE');
+	});
+	
 		light = Math.random();
 		
 		if(light < 0.40)
