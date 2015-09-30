@@ -37,7 +37,7 @@ canvas {
 	var headCenter = new Point(100+Math.random()*1072,100+Math.random()*432);
 	
 	var vector = 0;
-	vector = random - circle.position;
+	vector = random - headCenter;
 	vector.length = speed;
 	
 	// Tête du serpent
@@ -48,7 +48,7 @@ canvas {
 		});
 		
 	// Variables du jeu
-	var speed = 2;
+	var speed = 200;
 	
 	// Construction du serpent par clonage de la tête
 	var snake = [circle];
@@ -56,6 +56,7 @@ canvas {
 	{snake.push(circle.clone());}
 	
 	// Tableaux de communication client/serveur
+	var onScreenSnakes = [snake];
 	var allSnakes;
 	var localData;
 	
@@ -65,30 +66,31 @@ canvas {
 		vector.length = speed;
 		
 		// Envoi de la tête et du vecteur au serveur pour transmission à autres clients
-		localData=[snake[0],vector];
-		ws.send(localData);
+		localData= [circle,vector];
+		ws.send(JSON.stringify(localData));
 	}
 	
 	// Ici, on reçoit le broadcast du serveur
 	ws.onmessage = function(msg) {
 			console.log('Received message from server: ' + msg.data);
-			// On veut update le déplacement de tous les snakes - Non fonctionnel
-			allSnakes = msg.data;
+			// On veut update le déplacement de tous les snakes
+			allSnakes = JSON.parse(msg.data);
+			
+			for(var i in allSnakes)
+			{
+			
+// ICI - allSnakes[i][0].clone() semble ne pas marcher !!
+				
+				// Ajouter le vecteur à la position du cercle (Déplacement tête)
+				onScreenSnakes[i][0] += allSnakes[i][1];
+				// Ajout d'un nouveau clone du cercle (Gestion queue n1")
+				onScreenSnakes[i].push(allSnakes[i][0].clone());
+				// Suppression du clone le plus ancien (Gestion queue n2")
+				onScreenSnakes[i].splice(1,1)[0].remove();
+			}
+			
+			
 		}
-		
-	function onFrame(event) {
-	
-		// Non fonctionnel actuellement
-		for(var i in msg.data)
-		{
-			// Ajouter le vecteur à la position du cercle (Déplacement tête)
-			allSnakes[i] += vector;
-			// Ajout d'un nouveau clone du cercle (Gestion queue n1")
-			snake.push(circle.clone());
-			// Suppression du clone le plus ancien (Gestion queue n2")
-			snake.splice(1,1)[0].remove();
-		}
-	}
 	
 </script>
 <body>
