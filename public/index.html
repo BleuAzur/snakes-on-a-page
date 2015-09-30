@@ -34,27 +34,16 @@ canvas {
 		fillColor: 'blue'
 		});
 		
-	var speed = 5;
-	var vector = 0
-	var light = 0.5
+	var speed = 4;
+	var vector = 3;
+	var light = 0.5;
 	var snake = [circle];
 	for(var i = 0; i<8; i++)
 	{snake.push(circle.clone());}
 	
-		
-	function onMouseMove(event) {
+	function onMouseUp(event) {
 		vector = event.point - circle.position;
 		vector.length = speed;
-	}
-	
-	// DEBUG
-	function onMouseUp(event) {
-		
-		snake.push(circle.clone());
-		snake.push(circle.clone());
-		snake.push(circle.clone());
-		snake.push(circle.clone());
-		snake.push(circle.clone());
 	}
 	
 	function onFrame(event) {

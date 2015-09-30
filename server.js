@@ -8,11 +8,8 @@ app.use(express.static('public'));
 var options = {
     key:    fs.readFileSync('private/server.key'),
     cert:   fs.readFileSync('private/server.crt'),
-//    requestCert:        true,
-//    rejectUnauthorized: false
 };
 
 https.createServer(options, app).listen(3250, function () {
 	console.log("Server running")
-	
 });
