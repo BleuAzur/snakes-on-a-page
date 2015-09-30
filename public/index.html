@@ -22,6 +22,10 @@ canvas {
 </style>
 
 <head>
+
+<script type="text/javascript">
+	var ws = new WebSocket('wss://localhost:3250');
+</script>
 <!-- Load the Paper.js library -->
 <script type="text/javascript" src="js/paper.js"></script>
 <!-- Define inlined PaperScript associate it with myCanvas -->
@@ -41,12 +45,20 @@ canvas {
 	for(var i = 0; i<8; i++)
 	{snake.push(circle.clone());}
 	
+	var localData = [vector,circle];
+	
 	function onMouseUp(event) {
 		vector = event.point - circle.position;
 		vector.length = speed;
+		
+		ws.send(localData);
 	}
 	
 	function onFrame(event) {
+	
+		ws.onmessage = function(msg) {
+		console.log('Received message from server: ' + msg.data);
+		}
 		
 		light = Math.random();
 		
@@ -59,11 +71,8 @@ canvas {
 		
 		circle.position += vector;
 		
-		
 		snake.push(circle.clone());
 	    snake.splice(1,1)[0].remove();
-			
-		
 	}
 	
 </script>
