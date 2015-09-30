@@ -13,7 +13,7 @@ var options = {
 };
 
 var server = https.createServer(options, app).listen(port, function () {
-	console.log("Server running")
+	console.log("Server running");
 });
 
 var WebSocketServer = require('ws').Server,
@@ -21,11 +21,16 @@ var WebSocketServer = require('ws').Server,
 	
 wss.broadcast = function(data) {
   for (var i in this.clients)
+  {
     this.clients[i].send(data);
+	console.log("Broadcast sent");
+  }
 };
 
 wss.on('connection', function(ws) {
+	console.log("Connection");
   ws.on('message', function(message) {
+	  console.log("Fonction message");
     wss.broadcast(message);
   });
 });

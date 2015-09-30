@@ -9,15 +9,15 @@ body {
 }
 canvas {
 
-	margin-left: 2%;
+	margin-left: 2%;	
 	margin-right: 8%;
-	margin-top: 30px;
-	margin-bottom: 30px;
+	margin-top: 2%;
+	margin-bottom : 8%;
 	border-style: solid;
 	border-width: 4px;
 
-    width: 80%;
-    height: 80%;
+    width: 1272px;
+	height: 632px;
 }
 </style>
 
@@ -31,18 +31,26 @@ canvas {
 <!-- Define inlined PaperScript associate it with myCanvas -->
 <script type="text/paperscript" canvas="myCanvas">
 	
-	var pathCenter = new Point(150,150);
+	var random = new Point(Math.random()*1272,Math.random()*632);
+	
+	var randomColor = new Color(Math.random(),Math.random(),Math.random())
+	var pathCenter = new Point(100+Math.random()*1072,100+Math.random()*432);
 		var circle = new Path.Circle({
 		center: pathCenter,
-		radius: 10,
-		fillColor: 'blue'
+		radius: 6,
+		fillColor: randomColor
 		});
+	
 		
-	var speed = 4;
-	var vector = 3;
+	var speed = 2;
+	var vector = 0;
+	
+	vector = random - circle.position;
+	vector.length = speed;
+	
 	var light = 0.5;
 	var snake = [circle];
-	for(var i = 0; i<8; i++)
+	for(var i = 0; i<10; i++)
 	{snake.push(circle.clone());}
 	
 	var localData = [vector,circle];
@@ -58,6 +66,7 @@ canvas {
 	
 		ws.onmessage = function(msg) {
 		console.log('Received message from server: ' + msg.data);
+		
 		}
 		
 		light = Math.random();
@@ -67,7 +76,7 @@ canvas {
 		else if(light > 0.60)
 		light = 0.60;
 		
-		circle.fillColor.lightness = light;
+		<!-- circle.fillColor.lightness = light;
 		
 		circle.position += vector;
 		
