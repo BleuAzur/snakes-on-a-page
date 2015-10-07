@@ -28,19 +28,30 @@ var WebSocketServer = require('ws').Server,
 // Tableau contenant les données des joueurs
 var allSnakes = [];
 //Tableau contenant tous les joueurs
-var clients = {};
+var clients = [];
 var count = 0;
 
+// Broadcast global
+var delay = 2000;
+// Envoi de allSnakes tous les 'delay' secondes
+setInterval(broadcast, delay, allSnakes);
+
 // Envoie un message à tous les clients
-
-
 function broadcast(data) {
-	  for (var i in clients)
+	  for (var i = 0;i < count;i++)
 	  {
-		 //DEBUG
-		  console.log(JSON.stringify(data));
-		 // On envoie allSnakes à chaque client
-		clients[i].send(JSON.stringify(data));
+		if(clients[i].readyState != 1)
+		{
+			console.log("Socket non ouvert : " + clients[i].readyState)
+		}
+		else 
+		{
+			
+			console.log("Socket ouvert : " + clients[i].readyState)
+			//console.log('Sent message to client:');
+			// On envoie allSnakes à chaque client
+			clients[i].send(JSON.stringify(data));
+		}
 	  }
 	}
 
@@ -49,15 +60,31 @@ wss.on('connection', function(ws) {
 	// DEBUG
 	console.log("Nouvelle connection");
 	// On store la nouvelle connection dans un tableau de clients.
-	clients[id] = ws;
+	clients[count] = ws;
 	// Incrémentation du prochain ID joueur et du nombre de joueurs actuels
-	var id = count++;
+	count++;
 	
-  ws.on('message', function(message) {
-	  allSnakes.push(JSON.parse(message));
-  });
+	ws.on('message', function(message) {
+		console.log('Received message from client:');
+		allSnakes.push(JSON.parse(message));
+	});
   
-  
-  // Send something to all clients every x time
-  setInterval(broadcast, 500, allSnakes);
+	// Fonction déconnexion v0.1
+	ws.on('close', function(ws) {
+		
+		// On récupère l'index du déconnecté
+		var indexDC = clients.indexOf(ws);
+		// On le retire du tableau
+		clients.splice(clients.indexOf(),1);
+		// On décrémente le nombre de clients
+		count--;		
+		console.log('Disconnection');
+	});
+	
+	ws.on('error', function() {
+        console.log('ERROR');
+	});
+ 
 });
+
+

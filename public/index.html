@@ -33,7 +33,7 @@ canvas {
 	
 	// Départ, couleur et direction aléatoire
 	var random = new Point(Math.random()*1272,Math.random()*632);
-	var randomColor = new Color(Math.random(),Math.random(),Math.random())
+	var randomColor = new Color(Math.random(),Math.random(),Math.random());
 	var headCenter = new Point(100+Math.random()*1072,100+Math.random()*432);
 	
 	var vector = 0;
@@ -56,7 +56,7 @@ canvas {
 	{snake.push(circle.clone());}
 	
 	// Tableaux de communication client/serveur
-	var onScreenSnakes = [snake];
+	var onScreenSnakes = [snake]; // Solution temporaire non multi
 	var allSnakes;
 	var localData;
 	
@@ -72,25 +72,23 @@ canvas {
 	
 	// Ici, on reçoit le broadcast du serveur
 	ws.onmessage = function(msg) {
-			console.log('Received message from server: ' + msg.data);
+	
 			// On veut update le déplacement de tous les snakes
 			allSnakes = JSON.parse(msg.data);
 			
-			for(var i in allSnakes)
+			for(var i = 0;i < allSnakes.length;i++)
 			{
-			
-// ICI - allSnakes[i][0].clone() semble ne pas marcher !!
+				// Ajout d'un nouveau clone du cercle (Gestion queue n1")
+				onScreenSnakes[i].push(allSnakes[i][0].clone());
+				
+				// Suppression du clone le plus ancien (Gestion queue n2")
+				onScreenSnakes[i].splice(1,1)[0].remove();
 				
 				// Ajouter le vecteur à la position du cercle (Déplacement tête)
 				onScreenSnakes[i][0] += allSnakes[i][1];
-				// Ajout d'un nouveau clone du cercle (Gestion queue n1")
-				onScreenSnakes[i].push(allSnakes[i][0].clone());
-				// Suppression du clone le plus ancien (Gestion queue n2")
-				onScreenSnakes[i].splice(1,1)[0].remove();
+				
 			}
-			
-			
-		}
+	}
 	
 </script>
 <body>
