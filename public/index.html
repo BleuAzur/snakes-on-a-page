@@ -23,59 +23,42 @@ canvas {
 
 <head>
 
-<script type="text/javascript">
-	var ws = new WebSocket('wss://localhost:3250');
-	
-	/* Problêmes si nom redondant à gérer
-	var person = prompt("Please enter your name", "Snakey Snake");
-	while(person == null)
-	{
-		person = prompt("Please enter your name", "Snakey Snake");
-	}
-	*/
-	
-</script>
 <!-- Load the Paper.js library -->
 <script type="text/javascript" src="js/paper.js"></script>
 <!-- Define inlined PaperScript associate it with myCanvas -->
 <script type="text/paperscript" canvas="myCanvas">
-	
+
+	var ws = new WebSocket('wss://localhost:3250');
+	 
 	// Variables du jeu
 	var speed = 200;
-	var colors = ['#ff0000','#ffffff','#00ffff','#0000ff','#00ff00''#ffff00''#ff00ff'];
+	var radius = 6;
+	var colors = ['#ff0000','#ffffff','#00ffff','#0000ff','#00ff00','#ffff00','#ff00ff'];
 
 	// Tableaux de communication client/serveur
 	var onScreenSnakes = [];
 	var allSnakes = [];
-	var localData;
-	var id;
 	
-	var circle = new Path.Circle({
-		center: headCenter,
-		radius: 6,
-		fillColor: startColor
-	});
-	
-	var color = Math.round(Math.random() * 8)
+	var color = colors[Math.round(Math.random() * 8)];
 	var circle = [];
 	circle[0] = 100+Math.random()*1072;
 	circle[1] = 100+Math.random()*432;
 	circle[2] = color;
+	circle[3] = 10;
+	circle[4] = 0;
+	
 	console.log(color);
-	var x = circle.position.x;
-	var y = circle.position.y;
 	
 	function onMouseUp(event) {
 		// Génération d'un vecteur entre la pos. actuelle et la pos. désirée
-		vector = event.point - circle.position;
+		var vector = event.point - circle.position;
 		vector.length = speed;
 		
-		x = circle.position.x;
-		y = circle.position.y;
-		
-		// Envoi de la tête et du vecteur au serveur pour transmission à autres clients
-		localData=[x,y,color];
-		ws.send(JSON.stringify(localData));
+		circle[4] = vector;
+	}
+	
+	function onFrame() {
+		ws.send(JSON.stringify(circle));
 	}
 	
 	// Ici, on reçoit le broadcast du serveur
@@ -84,8 +67,10 @@ canvas {
 			// On veut update le déplacement de tous les snakes
 			allSnakes = JSON.parse(msg.data);
 			console.log("Message reçu");
-			for(var i = 0;i < allSnakes.length;i++)
-			{
+			
+			var i;
+			for(i = 0;i < allSnakes.length;i++)
+			{ // On utilise les valeurs pour créer les snakes.
 				var randomColor = new Color(i*50,100,50);
 				var headPoint = new Point(allSnakes[i][0],allSnakes[i][1]);
 				var head = new Path.Circle({
@@ -93,7 +78,6 @@ canvas {
 				radius: 6,
 				fillColor: randomColor
 				});
-				
 			}
 	}
 </script>
