@@ -1,5 +1,4 @@
 // Ajout des diverses librairies et modules utilisées pour mettre en place le serveur
-
 var https = require('https'),
 fs =    require('fs');
 var express = require('express');
@@ -24,7 +23,6 @@ var server = https.createServer(options, app).listen(port, function () {
 var WebSocketServer = require('ws').Server,
 	wss = new WebSocketServer({server: server});
 	
-
 // Tableau contenant les données des joueurs
 var allSnakes = []	;
 //Tableau contenant tous les joueurs
@@ -52,7 +50,6 @@ function broadcast(data) {
 			{
 				
 				console.log("Socket ouvert : " + clients[i].readyState)
-				//console.log('Sent message to client:');
 				// On envoie allSnakes à chaque client
 				clients[i].send(JSON.stringify(data));
 			}
