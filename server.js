@@ -67,17 +67,26 @@ wss.on('connection', function(ws) {
 	ws.on('message', function(message) {
 		console.log('Received message from client:');
 		allSnakes.push(JSON.parse(message));
+		if(ws.name != message[0])
+		{
+			ws.name = message[0];
+			console.log(ws.name + " sent a message");
+		}
 	});
   
 	// Fonction déconnexion v0.1
-	ws.on('close', function(ws) {
+	ws.on('close', function close() {
 		
 		// On récupère l'index du déconnecté
-		var indexDC = clients.indexOf(ws);
+		var indexDC = clients.indexOf(this);
+		
+		console.log("Index removed : " + indexDC);
+		
 		// On le retire du tableau
 		clients.splice(clients.indexOf(),1);
 		// On décrémente le nombre de clients
-		count--;		
+		count--;
+		
 		console.log('Disconnection');
 	});
 	

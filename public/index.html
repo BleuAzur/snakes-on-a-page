@@ -25,6 +25,15 @@ canvas {
 
 <script type="text/javascript">
 	var ws = new WebSocket('wss://localhost:3250');
+	
+	/* Problêmes si nom redondant à gérer
+	var person = prompt("Please enter your name", "Snakey Snake");
+	while(person == null)
+	{
+		person = prompt("Please enter your name", "Snakey Snake");
+	}
+	*/
+	
 </script>
 <!-- Load the Paper.js library -->
 <script type="text/javascript" src="js/paper.js"></script>
@@ -78,8 +87,11 @@ canvas {
 			
 			for(var i = 0;i < allSnakes.length;i++)
 			{
+			
+				console.log(allSnakes[i][0]);
 				// Ajout d'un nouveau clone du cercle (Gestion queue n1")
 				onScreenSnakes[i].push(allSnakes[i][0].clone());
+				
 				
 				// Suppression du clone le plus ancien (Gestion queue n2")
 				onScreenSnakes[i].splice(1,1)[0].remove();
