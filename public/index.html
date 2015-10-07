@@ -40,68 +40,62 @@ canvas {
 <!-- Define inlined PaperScript associate it with myCanvas -->
 <script type="text/paperscript" canvas="myCanvas">
 	
-	// Départ, couleur et direction aléatoire
-	var random = new Point(Math.random()*1272,Math.random()*632);
-	var randomColor = new Color(Math.random(),Math.random(),Math.random());
-	var headCenter = new Point(100+Math.random()*1072,100+Math.random()*432);
-	
-	var vector = 0;
-	vector = random - headCenter;
-	vector.length = speed;
-	
-	// Tête du serpent
-		var circle = new Path.Circle({
-		center: headCenter,
-		radius: 6,
-		fillColor: randomColor
-		});
-		
 	// Variables du jeu
 	var speed = 200;
-	
-	// Construction du serpent par clonage de la tête
-	var snake = [circle];
-	for(var i = 0; i<10; i++)
-	{snake.push(circle.clone());}
-	
+	var colors = ['#ff0000','#ffffff','#00ffff','#0000ff','#00ff00''#ffff00''#ff00ff'];
+
 	// Tableaux de communication client/serveur
-	var onScreenSnakes = [snake]; // Solution temporaire non multi
-	var allSnakes;
+	var onScreenSnakes = [];
+	var allSnakes = [];
 	var localData;
+	var id;
+	
+	var circle = new Path.Circle({
+		center: headCenter,
+		radius: 6,
+		fillColor: startColor
+	});
+	
+	var color = Math.round(Math.random() * 8)
+	var circle = [];
+	circle[0] = 100+Math.random()*1072;
+	circle[1] = 100+Math.random()*432;
+	circle[2] = color;
+	console.log(color);
+	var x = circle.position.x;
+	var y = circle.position.y;
 	
 	function onMouseUp(event) {
 		// Génération d'un vecteur entre la pos. actuelle et la pos. désirée
 		vector = event.point - circle.position;
 		vector.length = speed;
 		
+		x = circle.position.x;
+		y = circle.position.y;
+		
 		// Envoi de la tête et du vecteur au serveur pour transmission à autres clients
-		localData= [circle,vector];
+		localData=[x,y,color];
 		ws.send(JSON.stringify(localData));
 	}
 	
 	// Ici, on reçoit le broadcast du serveur
 	ws.onmessage = function(msg) {
-	
+			
 			// On veut update le déplacement de tous les snakes
 			allSnakes = JSON.parse(msg.data);
-			
+			console.log("Message reçu");
 			for(var i = 0;i < allSnakes.length;i++)
 			{
-			
-				console.log(allSnakes[i][0]);
-				// Ajout d'un nouveau clone du cercle (Gestion queue n1")
-				onScreenSnakes[i].push(allSnakes[i][0].clone());
-				
-				
-				// Suppression du clone le plus ancien (Gestion queue n2")
-				onScreenSnakes[i].splice(1,1)[0].remove();
-				
-				// Ajouter le vecteur à la position du cercle (Déplacement tête)
-				onScreenSnakes[i][0] += allSnakes[i][1];
+				var randomColor = new Color(i*50,100,50);
+				var headPoint = new Point(allSnakes[i][0],allSnakes[i][1]);
+				var head = new Path.Circle({
+				center: headPoint,
+				radius: 6,
+				fillColor: randomColor
+				});
 				
 			}
 	}
-	
 </script>
 <body>
  <canvas id="myCanvas" resize></canvas>

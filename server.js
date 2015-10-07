@@ -26,7 +26,7 @@ var WebSocketServer = require('ws').Server,
 	
 
 // Tableau contenant les données des joueurs
-var allSnakes = [];
+var allSnakes = []	;
 //Tableau contenant tous les joueurs
 var clients = [];
 var count = 0;
@@ -36,58 +36,61 @@ var delay = 2000;
 // Envoi de allSnakes tous les 'delay' secondes
 setInterval(broadcast, delay, allSnakes);
 
+
 // Envoie un message à tous les clients
 function broadcast(data) {
-	  for (var i = 0;i < count;i++)
-	  {
-		if(clients[i].readyState != 1)
+	if(clients.length != 0)
+	{
+		console.log("Broadcasting to " + count + " player(s)");
+		for (var i = 0;i < count;i++)
 		{
-			console.log("Socket non ouvert : " + clients[i].readyState)
+			if(clients[i].readyState != 1)
+			{
+				console.log("Socket non ouvert : " + clients[i].readyState)
+			}
+			else 
+			{
+				
+				console.log("Socket ouvert : " + clients[i].readyState)
+				//console.log('Sent message to client:');
+				// On envoie allSnakes à chaque client
+				clients[i].send(JSON.stringify(data));
+			}
 		}
-		else 
-		{
-			
-			console.log("Socket ouvert : " + clients[i].readyState)
-			//console.log('Sent message to client:');
-			// On envoie allSnakes à chaque client
-			clients[i].send(JSON.stringify(data));
-		}
-	  }
 	}
+}
 
 wss.on('connection', function(ws) {
 	
+	var id = count;
+	var msg;
 	// DEBUG
-	console.log("Nouvelle connection");
-	// On store la nouvelle connection dans un tableau de clients.
+	console.log("Nouvelle connection : " + ws);
 	clients[count] = ws;
-	// Incrémentation du prochain ID joueur et du nombre de joueurs actuels
 	count++;
 	
 	ws.on('message', function(message) {
 		console.log('Received message from client:');
-		allSnakes.push(JSON.parse(message));
-		if(ws.name != message[0])
-		{
-			ws.name = message[0];
-			console.log(ws.name + " sent a message");
-		}
+		msg = JSON.parse(message);
+		allSnakes[id] = msg;
+			
 	});
-  
-	// Fonction déconnexion v0.1
-	ws.on('close', function close() {
+	
+	// Fonction déconnexion
+	ws.on('close', function close(ws) {
 		
+		console.log("Déconnexion de " + ws);
 		// On récupère l'index du déconnecté
-		var indexDC = clients.indexOf(this);
+		var indexDC = clients.indexOf(ws);
 		
 		console.log("Index removed : " + indexDC);
 		
 		// On le retire du tableau
-		clients.splice(clients.indexOf(),1);
+		clients.splice(indexDC,1);
 		// On décrémente le nombre de clients
 		count--;
 		
-		console.log('Disconnection');
+		console.log('Disconnection : ' + count + ' players left');
 	});
 	
 	ws.on('error', function() {
@@ -95,5 +98,3 @@ wss.on('connection', function(ws) {
 	});
  
 });
-
-
