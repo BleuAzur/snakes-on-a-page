@@ -4,11 +4,12 @@ module.exports.circle=circle;
 module.exports.snake=snake;
 module.exports.allSnakes=allSnakes;
 
-var MODSCREENHEIGHT = 432;
-var MODSCREENLENGTH = 1072;
+var MOD_SCREEN_HEIGHT = 432;
+var MOD_SCREEN_LENGTH = 1072;
 
-var CIRCLERADIUS = 8;
-var BASESNAKELENGTH = 8;
+var CIRCLE_RADIUS = 8;
+var BASE_SNAKE_LENGTH = 8;
+var SPEED = 10; // Untested value
 
 function point(x,y) {
 	this.x = x;
@@ -38,10 +39,10 @@ function snake (id) {
 	this.id = id;
 	
 	this.randomLength = function () {
-		return 100+Math.random()*MODSCREENLENGTH;
+		return 100+Math.random()*MOD_SCREEN_LENGTH;
 	}
 	this.randomHeight = function () {
-		return 100+Math.random()*MODSCREENHEIGHT;
+		return 100+Math.random()*MOD_SCREEN_HEIGHT;
 	}
 	// Trouver comment faire fonctionner ce système de vecteur pour déplacer des points
 	this.randomPoint = function () {
@@ -49,14 +50,14 @@ function snake (id) {
 	}
 	
 	this.generateBody = function () {
-		this.body[0] = circle(randomPoint,CIRCLERADIUS);
-		for(var i = 1;i < BASESNAKELENGTH;i++)
+		this.body[0] = circle(randomPoint,CIRCLE_RADIUS);
+		for(var i = 1;i < BASE_SNAKE_LENGTH;i++)
 		{
 			// Devrait créer un serpent dont les cercles sont décalés par rapport à la tête
 			this.body[i] = this.body[i-1].center - this.direction;
 		}
 	}
-	this.update = function (v) {
+	this.update = function () {
 		//TODO
 	}
 }
@@ -65,11 +66,14 @@ function allSnakes () {
 	this.snakes = [];
 	
 	this.update = function () {
-		
+		for(var i = 0;i < snakes.length;i++)
+		{
+			snakes[i].update();
+		}
 	}
 	
+	// Unfinished
 	this.addSnake = function (id) {
 		this.snakes[id] = snake(id);
-		thi
 	}
 }

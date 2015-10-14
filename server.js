@@ -22,15 +22,14 @@ var server = https.createServer(options, app).listen(port, function () {
 // Création du webSocket lié au serveur
 var WebSocketServer = require('ws').Server,
 	wss = new WebSocketServer({server: server});
-	
-// Tableau contenant les données des joueurs
-var allSnakes = []	;
+
 //Tableau contenant tous les joueurs
 var clients = [];
 var count = 0;
 
 // Broadcast global
-var delay = 2000;
+var delay = 2000; // 2000 = 2s - Debug value
+
 // Envoi de allSnakes tous les 'delay' secondes
 setInterval(broadcast, delay, allSnakes);
 
@@ -58,7 +57,7 @@ function broadcast(data) {
 			{
 				
 				console.log("Socket ouvert : " + clients[i].readyState)
-				// On envoie allSnakes à chaque client
+				// On envoie data à chaque client
 				clients[i].send(JSON.stringify(data));
 			}
 		}
@@ -78,13 +77,13 @@ wss.on('connection', function(ws) {
 	
 	ws.on('message', function(message) {
 		console.log('Received message from client:');
-		// On parse le message et on l'ajoute au tableau des clients - A refaire
+		// On parse un message et on l'ajoute au tableau allSnakes - Obsolète
 		msg = JSON.parse(message);
 		allSnakes[id] = msg;
 			
 	});
 	
-	// Fonction déconnexion
+	// Fonction déconnexion - Imparfaite
 	ws.on('close', function close(ws) {
 		
 		console.log("Déconnexion de " + ws);

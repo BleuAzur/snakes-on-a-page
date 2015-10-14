@@ -18,7 +18,7 @@
 	}
 	
 	function onFrame() {
-		ws.send(JSON.stringify(circle)); // On envoie les données à chaque appel de onFrame.
+		ws.send(/*données*/); // On envoie les données à chaque appel de onFrame.
 	}
 	
 	// Ici, on reçoit le broadcast du serveur
