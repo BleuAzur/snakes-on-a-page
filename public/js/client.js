@@ -1,4 +1,6 @@
+	// Ouverture du WebSocket client
 	var ws = new WebSocket('wss://localhost:3250');
+	
 	// Variables du jeu
 	var speed = 200;
 	var radius = 6;
@@ -8,9 +10,10 @@
 	var onScreenSnakes = [];
 	var allSnakes = [];
 	
+	// On initialise les données à envoyer au serveur ( départ aléatoire )
 	var color = colors[Math.round(Math.random() * 8)];
 	var circle = [];
-	circle[0] = 100+Math.random()*1072;
+	circle[0] = 100+Math.random()*1072; // Pour ne pas start trop près d'un bord
 	circle[1] = 100+Math.random()*432;
 	circle[2] = color;
 	circle[3] = 0;
@@ -26,7 +29,7 @@
 	}
 	
 	function onFrame() {
-		ws.send(JSON.stringify(circle));
+		ws.send(JSON.stringify(circle)); // On envoie les données à chaque appel de onFrame.
 	}
 	
 	// Ici, on reçoit le broadcast du serveur
@@ -41,5 +44,6 @@
 			for(i = 0;i < allSnakes.length;i++)
 			{ // On utilise les valeurs pour créer les snakes.
 			
+				//TODO (Voir algo papier ?)
 			}
 	}

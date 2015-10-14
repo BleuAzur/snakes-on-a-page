@@ -34,14 +34,15 @@ var delay = 2000;
 // Envoi de allSnakes tous les 'delay' secondes
 setInterval(broadcast, delay, allSnakes);
 
-
 // Envoie un message à tous les clients
 function broadcast(data) {
 	if(clients.length != 0)
 	{
 		console.log("Broadcasting to " + count + " player(s)");
+		// Pour chaque client
 		for (var i = 0;i < count;i++)
 		{
+			// Si le socket client n'est pas ouvert
 			if(clients[i].readyState != 1)
 			{
 				console.log("Socket non ouvert : " + clients[i].readyState)
@@ -61,13 +62,16 @@ wss.on('connection', function(ws) {
 	
 	var id = count;
 	var msg;
+	
 	// DEBUG
 	console.log("Nouvelle connection : " + ws);
+	
 	clients[count] = ws;
 	count++;
 	
 	ws.on('message', function(message) {
 		console.log('Received message from client:');
+		// On parse le message et on l'ajoute au tableau des clients - A refaire
 		msg = JSON.parse(message);
 		allSnakes[id] = msg;
 			
