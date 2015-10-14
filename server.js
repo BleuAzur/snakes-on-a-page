@@ -34,6 +34,13 @@ var delay = 2000;
 // Envoi de allSnakes tous les 'delay' secondes
 setInterval(broadcast, delay, allSnakes);
 
+// NEW - Require du modèle.
+var snake = require("./snake");
+var point = snake.point;
+var vecteur = snake.vecteur;
+var snake = snake.snake;
+var allSnakes = snake.allSnakes;
+
 // Envoie un message à tous les clients
 function broadcast(data) {
 	if(clients.length != 0)
