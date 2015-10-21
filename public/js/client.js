@@ -1,38 +1,78 @@
+
 	// Ouverture du WebSocket client
 	var ws = new WebSocket('wss://localhost:3250');
+	var allSnakesClient = new allSnakes();
+	var colors = ['#ff2020','#ffffff','#20ffff','#2020ff','#20ff20','#ffff20','#ff20ff','#d8f8a8'];
 	
-	// Tableaux de communication client/serveur
-	var onScreenSnakes = [];
-	var allSnakes = [];
+	function randomColor(id) {
+		return colors[id%7];
+	}
 	
-	// old
-	
-	var colors = ['#ff0000','#ffffff','#00ffff','#0000ff','#00ff00','#ffff00','#ff00ff'];
-	var color = colors[Math.round(Math.random() * 8)];
-
+	var myID = null;
+	var tMess;
+	var vector;
+	var mousePoint;
 	
 	function onMouseUp(event) {
+		
+		mousePoint = new point(event.point.x,event.point.y);
 		// Génération d'un vecteur entre la pos. actuelle et la pos. désirée
-		var vector = event.point - circle.position;
-		vector.length = speed;
+		vector = new vecteur(mousePoint - allSnakesClient.snakes[myID]);
+		vector.normalize();
+		
+		ws.send(myID,vector);
 	}
 	
-	function onFrame() {
-		ws.send(/*données*/); // On envoie les données à chaque appel de onFrame.
+	var i,j;
+	var circle, circleCenter;
+	var onScreenCircles = [];
+	var currentSnake;
+	
+	function onFrame()
+	{
+		if(allSnakesClient.snakes.length != 0)
+		{
+			for(i = 0;i < allSnakesClient.snakes.length;i++)
+			{
+				currentSnake = allSnakesClient.snakes[i];
+				
+				for(j = 0; j < currentSnake.body.length;j++) {
+					circle = new Path.Circle( {
+						center : [currentSnake.body[j].center.x,currentSnake.body[j].center.y],
+						radius : CIRCLE_RADIUS,
+						strokeColor : randomColor(myID)
+					});
+				}
+			}
+		}
+		else { console.log("allSnakesClient est vide");}
+		
 	}
+	
+	var message;
 	
 	// Ici, on reçoit le broadcast du serveur
 	ws.onmessage = function(msg) {
-			
-			// On veut update le déplacement de tous les snakes
-			allSnakes = JSON.parse(msg.data);
+		
+			message = JSON.parse(msg.data);
 			console.log("Message reçu");
 			
-			var i;
-			
-			for(i = 0;i < allSnakes.length;i++)
-			{ // On utilise les valeurs pour créer les snakes.
-			
-				//TODO (Voir algo papier ?)
+			tMess = message[0];
+				
+			if(tMess === "init")
+			{
+				myID = message[1];
+				console.log("ID Assigned : " + myID);
 			}
+			else if(myID === null )
+			{
+				console.error("ID not set : Fatal error");
+			}
+			else if(tMess === "game")
+			{
+				allSnakesClient.snakes = message[1];
+			}
+			
+			
+			
 	}

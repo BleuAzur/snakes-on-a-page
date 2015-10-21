@@ -14,13 +14,19 @@ function test1() {
 	}
 }
 
-test1();
+//test1();
 
-var p2 = new point(3,4);
-var v2 = new vecteur(0,1);
-p2.add(v2);
-if(p2.x !== 3 || p2.y !== 5) {
-	console.error("Attendu [3.5,3.5] , recu " + JSON.stringify(p2));
+
+function test3() {
+	var p1 = new point(50,50);
+	var p2 = new point(100,99);
+	var v1 = new vecteur(p1,p2);
+	console.log(v1);
+	v1.normalize();
+	console.log(v1);
+	p1.add(v1);
+	console.error("Attendu [51,50] , recu " + JSON.stringify(p1));
 }
 
+test3();
 // TODO Ajouter des nouveaux tests une fois le modèle fini

@@ -31,17 +31,19 @@ var count = 0;
 var delay = 2000; // 2000 = 2s - Debug value
 
 // Envoi de allSnakes tous les 'delay' secondes
-setInterval(broadcast, delay, allSnakes);
+setInterval(broadcast, delay);
 
-// NEW - Require du modèle.
-var snake = require("./snake");
-var point = snake.point;
-var vecteur = snake.vecteur;
-var snake = snake.snake;
-var allSnakes = snake.allSnakes;
+// NEW - Require du modèle.	
+var model = require("./public/js/snake");
+var Point = model.point;
+var Vecteur = model.vecteur;
+var Snake = model.snake;
+var allSnakes = new model.allSnakes();
+	
+var message = [];
 
 // Envoie un message à tous les clients
-function broadcast(data) {
+function broadcast() {
 	if(clients.length != 0)
 	{
 		console.log("Broadcasting to " + count + " player(s)");
@@ -55,13 +57,28 @@ function broadcast(data) {
 			}
 			else 
 			{
+				console.log("Socket ouvert : " + clients[i].readyState);
 				
-				console.log("Socket ouvert : " + clients[i].readyState)
+				message[0] = "game";
+				
+				console.log(JSON.stringify(allSnakes.snakes[0]));
+				
+				message[1] = allSnakes.snakes;
+				
+				console.log(JSON.stringify(message[1]));
+				
 				// On envoie data à chaque client
-				clients[i].send(JSON.stringify(data));
+				clients[i].send(JSON.stringify(message));
 			}
 		}
 	}
+}
+
+function init(client,id) {
+	
+	message[0] = "init";
+	message[1] = id;
+	client.send(JSON.stringify(message));
 }
 
 wss.on('connection', function(ws) {
@@ -70,16 +87,24 @@ wss.on('connection', function(ws) {
 	var msg;
 	
 	// DEBUG
-	console.log("Nouvelle connection : " + ws);
+	console.log("Nouvelle connection");
 	
 	clients[count] = ws;
 	count++;
 	
+	init(ws,id);
+	
+	allSnakes.addSnake(id);
+	
 	ws.on('message', function(message) {
 		console.log('Received message from client:');
-		// On parse un message et on l'ajoute au tableau allSnakes - Obsolète
-		msg = JSON.parse(message);
-		allSnakes[id] = msg;
+		if(msg[0] >= 0) {
+			allSnakes.directions[msg[0]] = msg[1];
+			console.log("Direction updated");
+		}
+		else {
+			console.error("DEBUG error : ID not set")
+		}
 			
 	});
 	
@@ -87,8 +112,13 @@ wss.on('connection', function(ws) {
 	ws.on('close', function close(ws) {
 		
 		console.log("Déconnexion de " + ws);
+		
+		
 		// On récupère l'index du déconnecté
-		var indexDC = clients.indexOf(ws);
+		// NOT WORKING var indexDC = clients.indexOf(ws);
+		
+		//Hardcoded 4 debugging
+		var indexDC = 0;
 		
 		console.log("Index removed : " + indexDC);
 		
