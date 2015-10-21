@@ -3,13 +3,15 @@ var MOD_SCREEN_LENGTH = 1072;
 
 var CIRCLE_RADIUS = 8;
 var BASE_SNAKE_LENGTH = 8;
+var SPEED = 10;
 
 function point(x,y) {
 	this.x = x;
 	this.y = y;
+	
 	this.add = function (v) {
-		this.x = this.x + v.x;
-		this.y = this.y + v.y;
+		this.x = this.x + (v.x*SPEED);
+		this.y = this.y + (v.y*SPEED);
 	};
 }
 	
@@ -21,6 +23,7 @@ function vecteur(p1,p2) {
 	this.normalize = function() {
 		this.x = this.x / this.length;
 		this.y = this.y / this.length;
+		this.length = 1;
 	}
 }
 
@@ -32,7 +35,6 @@ function circle(p) {
 }
 
 function snake() {
-	console.log("BONJOUR JE CREE UN NOUVEAU SNAKE COUCOU LA FAMILLE");
 	this.body = [];
 	
 	this.randomPoint = function () {
@@ -43,19 +45,22 @@ function snake() {
 	
 	this.generateBody = function () {
 		this.body[0] = new circle(this.randomPoint(),CIRCLE_RADIUS);
-		console.log("BONJOUR JE GENERE LE BODY COUCOU LA FAMILLE");
 		for(var i = 1;i < BASE_SNAKE_LENGTH;i++)
 		{
-			// Devrait créer un serpent dont les cercles sont décalés par rapport à la tête
-			this.body[i] = this.body[i-1].center - this.direction;
+			var p = new point(this.body[i-1].center.x + 1,this.body[i-1].center.y + 1);
+			this.body[i] = new circle(p);
 		}
 	}
 		
 		
-	this.update = function (newPoint) {
-		this.body[0].update(vecteur(this.body[i],newPoint));
+	this.update = function (vecteur) {
+		this.body.unshift(new circle(this.body[0].center));
 		this.body.pop();
-		this.body.unshift(this.body[0]);
+		for(var i = this.body.length - 1;i > 0;i--)
+		{
+			this.body[i].center = this.body[i-1].center;
+		}
+		this.body[0].update(vecteur);
 	}
 }
 
@@ -64,20 +69,19 @@ function allSnakes () {
 	this.directions = [];
 	
 	this.update = function () {
-		for(var i = 0;i < snakes.length;i++)
+		for(var i = 0;i < this.snakes.length;i++)
 		{
-			if(snakes[i].direction != directions[i])
+			if(this.snakes[i].direction != this.directions[i])
 			{
-				snakes[i].update(directions[i]);
+				this.snakes[i].update(this.directions[i]);
+				
 			}
 		}
 	}
 	
 	this.addSnake = function (id) {
-		console.log("BONJOUR JE SUIS DANS LA FONCTION ADDSNAKE COUCOU LA FAMILLE");
 		this.snakes[id] = new snake();
 		this.snakes[id].generateBody();
-		console.log("BONJOUR J'AI CREE UN NOUVEAU SNAKE COUCOU LA FAMILLE " + this.snakes[id]);
 	}
 }
 

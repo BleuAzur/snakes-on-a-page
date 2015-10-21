@@ -1,7 +1,7 @@
-var snake = require("./snake");
-var point = snake.point;
-var vecteur = snake.vecteur;
-console.log(snake);
+var model = require("./snake");
+var point = model.point;
+var vecteur = model.vecteur;
+var Snake = model.snake;
 
 function test1() {
 	var p = new point(3,4);
@@ -28,5 +28,54 @@ function test3() {
 	console.error("Attendu [51,50] , recu " + JSON.stringify(p1));
 }
 
-test3();
+//test3();
 // TODO Ajouter des nouveaux tests une fois le modèle fini
+
+function test4() {
+	var p1 = new point(1,0);
+	var p2 = new point(2,0);
+	var v1 = new vecteur(p1,p2);
+
+		console.log(v1.x);
+		console.log(v1.y);
+	var snake = new Snake();
+	snake.generateBody();
+	console.log(snake.body[0].center.x + " + " + snake.body[0].center.y);
+	var tempx = snake.body[0].center.x;
+	snake.update(v1);
+	if(snake.body[0].center.x !== tempx)
+	{
+		console.error(snake.body[0].center.x + " + " + snake.body[0].center.y);
+	}
+}
+
+//test4();
+
+function test5() {
+	var p1 = new point(1,0);
+	var p2 = new point(2,0);
+	var v1 = new vecteur(p1,p2);
+
+	console.log(v1.x);
+	console.log(v1.y);
+		
+	var snake = new Snake();
+	snake.generateBody();
+	
+	console.log(snake.body[0].center.x + " + " + snake.body[0].center.y);
+	console.log(snake.body[1].center.x + " + " + snake.body[1].center.y);
+	console.log("UPDATE");
+	snake.update(v1);
+	
+	console.log(snake.body[0].center.x + " + " + snake.body[0].center.y);
+	console.log(snake.body[1].center.x + " + " + snake.body[1].center.y);
+	
+	console.log("UPDATE");
+	snake.update(v1);
+	
+	console.log(snake.body[0].center.x + " + " + snake.body[0].center.y);
+	console.log(snake.body[1].center.x + " + " + snake.body[1].center.y);
+	
+}
+
+test5();

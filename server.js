@@ -28,7 +28,7 @@ var clients = [];
 var count = 0;
 
 // Broadcast global
-var delay = 2000; // 2000 = 2s - Debug value
+var delay = 100; // 2000 = 2s - Debug value
 
 // Envoi de allSnakes tous les 'delay' secondes
 setInterval(broadcast, delay);
@@ -47,6 +47,7 @@ function broadcast() {
 	if(clients.length != 0)
 	{
 		console.log("Broadcasting to " + count + " player(s)");
+		allSnakes.update();
 		// Pour chaque client
 		for (var i = 0;i < count;i++)
 		{
@@ -56,16 +57,9 @@ function broadcast() {
 				console.log("Socket non ouvert : " + clients[i].readyState)
 			}
 			else 
-			{
-				console.log("Socket ouvert : " + clients[i].readyState);
-				
+			{				
 				message[0] = "game";
-				
-				console.log(JSON.stringify(allSnakes.snakes[0]));
-				
 				message[1] = allSnakes.snakes;
-				
-				console.log(JSON.stringify(message[1]));
 				
 				// On envoie data à chaque client
 				clients[i].send(JSON.stringify(message));
@@ -95,15 +89,15 @@ wss.on('connection', function(ws) {
 	init(ws,id);
 	
 	allSnakes.addSnake(id);
-	
+				
 	ws.on('message', function(message) {
-		console.log('Received message from client:');
+		msg = JSON.parse(message);
 		if(msg[0] >= 0) {
 			allSnakes.directions[msg[0]] = msg[1];
-			console.log("Direction updated");
+			console.log(allSnakes.directions[0]);
 		}
 		else {
-			console.error("DEBUG error : ID not set")
+			console.error("DEBUG error : ID not set : " + msg[0]);
 		}
 			
 	});
