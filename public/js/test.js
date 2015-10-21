@@ -62,20 +62,27 @@ function test5() {
 	var snake = new Snake();
 	snake.generateBody();
 	
+	var x0 = snake.body[0].center.x;
+	
 	console.log(snake.body[0].center.x + " + " + snake.body[0].center.y);
-	console.log(snake.body[1].center.x + " + " + snake.body[1].center.y);
+	//console.log(snake.body[1].center.x + " + " + snake.body[1].center.y);
 	console.log("UPDATE");
 	snake.update(v1);
+
 	
 	console.log(snake.body[0].center.x + " + " + snake.body[0].center.y);
-	console.log(snake.body[1].center.x + " + " + snake.body[1].center.y);
+	//console.log(snake.body[1].center.x + " + " + snake.body[1].center.y);
 	
-	console.log("UPDATE");
-	snake.update(v1);
+	if(snake.body[0].center.x != x0 + 10)
+	{
+		console.error("Attendu ["+ (x0+10) +"], recu " + snake.body[0].center.x);
+	}
+	else {console.log("passed");}
 	
-	console.log(snake.body[0].center.x + " + " + snake.body[0].center.y);
-	console.log(snake.body[1].center.x + " + " + snake.body[1].center.y);
-	
+	if(snake.body[1].center.x != x0) {
+			console.error("Attendu ["+ (x0) +"], recu " + snake.body[1].center.x);
+	}
+	else {console.log("passed");}
 }
 
 test5();

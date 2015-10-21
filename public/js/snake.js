@@ -54,11 +54,11 @@ function snake() {
 		
 		
 	this.update = function (vecteur) {
-		this.body.unshift(new circle(this.body[0].center));
-		this.body.pop();
-		for(var i = this.body.length - 1;i > 0;i--)
+		
+		for(var i = this.body.length - 1 ;i > 0;i--)
 		{
-			this.body[i].center = this.body[i-1].center;
+			this.body[i].center.x = this.body[i-1].center.x;
+			this.body[i].center.y = this.body[i-1].center.y;
 		}
 		this.body[0].update(vecteur);
 	}
