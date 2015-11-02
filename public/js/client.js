@@ -20,8 +20,6 @@
 		mousePoint = new point(event.point.x,event.point.y);
 		// Génération d'un vecteur entre la pos. actuelle et la pos. désirée
 		currentPoint = new point(allSnakesClient.snakes[myID].body[0].center.x,allSnakesClient.snakes[myID].body[0].center.y);
-		//console.log(currentPoint);
-		//console.log(mousePoint);
 		vector = new vecteur(currentPoint, mousePoint);
 		vector.normalize();
 		tab[0] = myID;
@@ -34,6 +32,7 @@
 	var currentSnake;
 	var message;
 	var players = [];
+	
 	var previousCircles = [];
 	
 	// Ici, on reçoit le broadcast du serveur
@@ -49,9 +48,15 @@
 				myID = message[1];
 				console.log("ID Assigned : " + myID);
 			}
+			else if(tMess === "dc")
+			{
+				console.log('disconnect asserted');
+				players[message[1]] = players[players.length-1];
+				players.splice(players.length-1,1);
+			}
 			else if(myID === null )
 			{
-				console.error("ID not set : Fatal error");
+				console.error("ID not set : Error");
 			}
 			else if(tMess === "game")
 			{
@@ -82,10 +87,10 @@
 	
 	function htmlUpdate() {
 		document.getElementById('playerNumber').innerHTML = '<p>Number of online players : ' + players.length + '</p>';
-		var content;
+		var content = "";
 		for(var i = 0; i < players.length;i++) 
 		{
-			var line = "Player " + i+1 + " : " + players[i] + " deaths </br>";
+			var line = "Player " + (i+1) + " : " + players[i] + " deaths </br>";
 			content += line;
 		}
 		document.getElementById('deathTab').innerHTML = content

@@ -75,10 +75,32 @@ function init(client,id) {
 	client.send(JSON.stringify(message));
 }
 
+function disconnect(id) {
+	
+	if(clients.length != 0)
+	{
+		for (var i = 0;i < count;i++)
+		{
+			if(clients[i].readyState != 1)
+			{
+				console.log("Socket non ouvert : " + clients[i].readyState)
+			}
+			else 
+			{				
+				message[0] = "dc";
+				message[1] = id;
+				
+				clients[i].send(JSON.stringify(message));
+			}
+		}
+	}
+}
+
 wss.on('connection', function(ws) {
 	
 	var id = count;
 	var msg;
+	var savedWs = ws;
 	
 	// DEBUG
 	console.log("Nouvelle connection");
@@ -103,25 +125,25 @@ wss.on('connection', function(ws) {
 	});
 	
 	// Fonction déconnexion - Imparfaite
-	ws.on('close', function close(ws) {
+	ws.on('close', function() {
 		
-		console.log("Déconnexion de " + ws);
-		
-		
-		// On récupère l'index du déconnecté
-		// NOT WORKING var indexDC = clients.indexOf(ws);
-		
-		//Hardcoded 4 debugging
-		var indexDC = 0;
-		
+		var indexDC = clients.indexOf(savedWs);
 		console.log("Index removed : " + indexDC);
 		
-		// On le retire du tableau
+		// Pour éviter les nombreux problêmes liés à la déconnexion de certains clients, on switch le contrôle du snake déconnecté au dernier joueur connecté
+		init(clients[count-1],indexDC)
+		
+		// On broadcast un signal de déconnection
+		disconnect(indexDC);
+		
+		// On le retire des tableaux
 		clients.splice(indexDC,1);
+		allSnakes.snakes.splice(indexDC,1);
+		
 		// On décrémente le nombre de clients
 		count--;
 		
-		console.log('Disconnection : ' + count + ' players left');
+		console.log('Disconnection : Player ' + indexDC + ' left');
 	});
 	
 	ws.on('error', function() {

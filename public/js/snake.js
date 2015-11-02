@@ -1,6 +1,6 @@
 var SCREEN_HEIGHT = 632;
 var SCREEN_LENGTH = 1272;
-var OFFSET = 200;
+var OFFSET = 100;
 
 var CIRCLE_RADIUS = 8;
 var BASE_SNAKE_LENGTH = 8;
@@ -25,6 +25,11 @@ function vecteur(p1,p2) {
 		this.x = this.x / this.length;
 		this.y = this.y / this.length;
 		this.length = 1;
+	}
+	
+	this.reverse = function() {
+		this.x = 0 - this.x;
+		this.y = 0 - this.y;
 	}
 }
 
@@ -61,19 +66,31 @@ function circle(p) {
 function snake() {
 	this.body = [];
 	this.deaths = 0;
+	
 	this.randomPoint = function () {
+		// On veut éviter de commencer un serpent trop près du bord du tableau
 		return new point(100+Math.random()*(SCREEN_LENGTH-OFFSET),100+Math.random()*(SCREEN_HEIGHT-OFFSET));
 	}
 		
-	this.direction = new vecteur(this.randomPoint(),this.randomPoint()).normalize();
+	this.generateDir = function () {
+		var newDir = new vecteur(this.randomPoint(),this.randomPoint());
+		newDir.normalize();
+		return newDir;
+	}
+	
+	var direction = this.generateDir();
 	
 	this.generateBody = function () {
 		this.body[0] = new circle(this.randomPoint(),CIRCLE_RADIUS);
+		direction = this.generateDir();
+		direction.reverse();
 		for(var i = 1;i < BASE_SNAKE_LENGTH;i++)
 		{
-			var p = new point(this.body[i-1].center.x + 1,this.body[i-1].center.y + 1);
+			var p = new point(this.body[i-1].center.x,this.body[i-1].center.y);
+			p.add(direction); 
 			this.body[i] = new circle(p);
 		}
+		direction.reverse();
 	}
 		
 		
@@ -84,7 +101,14 @@ function snake() {
 			this.body[i].center.x = this.body[i-1].center.x;
 			this.body[i].center.y = this.body[i-1].center.y;
 		}
-		this.body[0].update(vecteur);
+		if(vecteur !== null)
+		{
+			this.body[0].update(vecteur);
+			direction = vecteur;
+		}
+		else {
+			this.body[0].update(direction);
+		}
 		
 	}
 	
@@ -96,20 +120,24 @@ function snake() {
 		
 		for(var i = 0;i < l1;i++)
 		{
-			if(snakes[i] !== this)
+			var j = 0;
+			if(snakes[i] === this)
 			{
-				l2 = snakes[i].body.length;
-				for(var j = 0;j < l2;j++)
+				// Pour ne pas calculer l'auto-collision des premiers cercles d'un snake (se chevauchant normalement)
+				j = 2;
+			}
+		
+			l2 = snakes[i].body.length;
+			for(j;j < l2;j++)
+			{
+				// Calcul distance relative
+				distance = Math.sqrt(
+					((thisHead.center.x - snakes[i].body[j].center.x) * (thisHead.center.x - snakes[i].body[j].center.x))
+					+ ((thisHead.center.y - snakes[i].body[j].center.y) * (thisHead.center.y - snakes[i].body[j].center.y))
+					);
+				if(distance < CIRCLE_RADIUS)
 				{
-					// Calcul distance relative
-					distance = Math.sqrt(
-						((thisHead.center.x - snakes[i].body[j].center.x) * (thisHead.center.x - snakes[i].body[j].center.x))
-						+ ((thisHead.center.y - snakes[i].body[j].center.y) * (thisHead.center.y - snakes[i].body[j].center.y))
-						);
-					if(distance < CIRCLE_RADIUS)
-					{
-						collision = true;
-					}
+					collision = true;
 				}
 			}
 		}
@@ -133,8 +161,8 @@ function allSnakes () {
 			if(this.snakes[i].direction != this.directions[i])
 			{
 				this.snakes[i].update(this.directions[i]);
-				
 			}
+			else {this.snakes[i].update(null);}
 		}
 		// Collision check iteration (Synchronisation des updates avant le check)
 		for(var i = 0;i < this.snakes.length;i++)
