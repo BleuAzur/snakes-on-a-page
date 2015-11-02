@@ -20,11 +20,10 @@
 		mousePoint = new point(event.point.x,event.point.y);
 		// Génération d'un vecteur entre la pos. actuelle et la pos. désirée
 		currentPoint = new point(allSnakesClient.snakes[myID].body[0].center.x,allSnakesClient.snakes[myID].body[0].center.y);
-		console.log(currentPoint);
-		console.log(mousePoint);
+		//console.log(currentPoint);
+		//console.log(mousePoint);
 		vector = new vecteur(currentPoint, mousePoint);
 		vector.normalize();
-		console.log(vector);
 		tab[0] = myID;
 		tab[1] = vector;
 		ws.send(JSON.stringify(tab));
@@ -34,6 +33,7 @@
 	var circle;
 	var currentSnake;
 	var message;
+	var players = [];
 	var previousCircles = [];
 	
 	// Ici, on reçoit le broadcast du serveur
@@ -56,7 +56,6 @@
 			else if(tMess === "game")
 			{
 				allSnakesClient.snakes = message[1];
-				
 				project.activeLayer.removeChildren();
 				
 				if(allSnakesClient.snakes.length != 0)
@@ -64,7 +63,7 @@
 					for(i = 0;i < allSnakesClient.snakes.length;i++)
 					{
 						currentSnake = allSnakesClient.snakes[i];
-						
+						players[i] = currentSnake.deaths;
 						for(j = 0; j < currentSnake.body.length;j++) {
 							
 							circle = new Path.Circle({
@@ -74,10 +73,20 @@
 							});
 						}
 					}
-				}
-				else { console.log("allSnakesClient est vide");}
-				
-				view.update();
+					htmlUpdate();
+					view.update();
+				}			
+				else {}
+			}	
+	}
+	
+	function htmlUpdate() {
+		document.getElementById('playerNumber').innerHTML = '<p>Number of online players : ' + players.length + '</p>';
+		var content;
+		for(var i = 0; i < players.length;i++) 
+		{
+			var line = "Player " + i+1 + " : " + players[i] + " deaths </br>";
+			content += line;
 		}
-			
+		document.getElementById('deathTab').innerHTML = content
 	}

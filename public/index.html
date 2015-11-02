@@ -18,15 +18,18 @@ canvas {
     width: 1272px;
 	height: 632px;
 }</style>
-<head>
-
 <!-- Load the Paper.js library -->
 <script type="text/javascript" src="js/paper.js"></script>
 <script type="text/javascript" src="js/snake.js"></script>
 <!-- Define inlined PaperScript associate it with myCanvas -->
 <script type="text/paperscript" src="js/client.js" canvas="myCanvas"></script>
+
+<head>
+<div id="playerNumber"></div>
+<ul id="deathTab"></ul>
+</head>
+
 <body>
 <canvas id="myCanvas"></canvas>
 </body>
-</head>
 </html>
