@@ -167,10 +167,7 @@ function allSnakes () {
 		// Collision check iteration (Synchronisation des updates avant le check)
 		for(var i = 0;i < this.snakes.length;i++)
 		{
-			if(this.snakes[i].direction != this.directions[i])
-			{
-				this.snakes[i].detectCollisions(this.snakes);
-			}
+			this.snakes[i].detectCollisions(this.snakes);
 		}
 	}
 	

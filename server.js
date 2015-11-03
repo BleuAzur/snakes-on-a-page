@@ -129,19 +129,21 @@ wss.on('connection', function(ws) {
 		
 		var indexDC = clients.indexOf(savedWs);
 		console.log("Index removed : " + indexDC);
+		count--;
 		
-		// Pour éviter les nombreux problêmes liés à la déconnexion de certains clients, on switch le contrôle du snake déconnecté au dernier joueur connecté
-		init(clients[count-1],indexDC)
-		
-		// On broadcast un signal de déconnection
-		disconnect(indexDC);
+		// Sauf dans le cas du dernier joueur connecté
+		if(count != 0)
+		{
+			// Pour éviter les nombreux problêmes liés à la déconnexion de certains clients, on switch le contrôle du snake déconnecté au dernier joueur connecté
+			init(clients[count],indexDC)
+			
+			// On broadcast un signal de déconnection
+			disconnect(indexDC);
+		}
 		
 		// On le retire des tableaux
 		clients.splice(indexDC,1);
 		allSnakes.snakes.splice(indexDC,1);
-		
-		// On décrémente le nombre de clients
-		count--;
 		
 		console.log('Disconnection : Player ' + indexDC + ' left');
 	});

@@ -2,10 +2,10 @@
 	// Ouverture du WebSocket client
 	var ws = new WebSocket('wss://localhost:3250');
 	var allSnakesClient = new allSnakes();
-	var colors = ['#ff2020','#000000','#20ffff','#2020ff','#20ff20','#ffff20','#ff20ff','#d8f8a8'];
+	var colors = ['#ff2020','#000000','#20ffff','#2020ff','#20ff20','#ffff20','#ff20ff','#d8f8a8','d8d820','ff3898','4020e8'];
 	
 	function playerColor(id) {
-		return colors[id%7];
+		return colors[id%11];
 	}
 	
 	var myID = null;
