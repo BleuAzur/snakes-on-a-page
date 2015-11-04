@@ -26,9 +26,10 @@ var WebSocketServer = require('ws').Server,
 //Tableau contenant tous les joueurs
 var clients = [];
 var count = 0;
+var nextOpenID = 0;
 
 // Broadcast global
-var delay = 100; // 2000 = 2s - Debug value
+var delay = 75; // 2000 = 2s - Debug value
 
 // Envoi de allSnakes tous les 'delay' secondes
 setInterval(broadcast, delay);
@@ -41,35 +42,53 @@ var Snake = model.snake;
 var allSnakes = new model.allSnakes();
 	
 var message = [];
+var highestActiveID;
+var cLength;
 
 // Envoie un message à tous les clients
 function broadcast() {
-	if(clients.length != 0)
+	
+	cLength = clients.length;
+	if(cLength != 0)
 	{
-		console.log("Broadcasting to " + count + " player(s)");
+		// On calcule les ID les plus bas et plus hauts
+		calcHighID();
+		
+		// Update du tableau des snakes
 		allSnakes.update();
+		
 		// Pour chaque client
-		for (var i = 0;i < count;i++)
+		for (var i = 0;i < cLength;i++)
 		{
+			
 			// Si le socket client n'est pas ouvert
-			if(clients[i].readyState != 1)
+			if(clients[i] === null)
 			{
-				console.log("Socket non ouvert : " + clients[i].readyState)
 			}
+			else if(clients[i].readyState != 1)
+			{/* Do nothing*/}
 			else 
-			{				
+			{
 				message[0] = "game";
 				message[1] = allSnakes.snakes;
+				message[2] = highestActiveID;
 				
 				// On envoie data à chaque client
 				clients[i].send(JSON.stringify(message));
 			}
 		}
+		
 	}
 }
-
-function init(client,id) {
+function calcHighID(){
 	
+	for (var i = 0;i < cLength;i++)
+		{
+			if(clients[i] !== null)
+			highestActiveID = i;
+		}
+}
+function init(client,id) {
 	message[0] = "init";
 	message[1] = id;
 	client.send(JSON.stringify(message));
@@ -79,11 +98,14 @@ function disconnect(id) {
 	
 	if(clients.length != 0)
 	{
-		for (var i = 0;i < count;i++)
+		for (var i = 0;i < clients.length;i++)
 		{
-			if(clients[i].readyState != 1)
+			if(clients[i] === null)
 			{
-				console.log("Socket non ouvert : " + clients[i].readyState)
+			}
+			else if(clients[i].readyState != 1)
+			{
+				console.log("Socket non ouvert : " + i)
 			}
 			else 
 			{				
@@ -98,25 +120,37 @@ function disconnect(id) {
 
 wss.on('connection', function(ws) {
 	
-	var id = count;
+	// On récupère le premier ID non utilisé en cas de "trou" suite à une déconnexion
+	for(var i = 0;i < clients.length;i++)
+	{
+		if(clients[i] === null)
+		{
+			nextOpenID = i;
+			break;
+		}
+		else
+		{
+			nextOpenID = count;
+		}
+	}
+	
+	console.log(nextOpenID);
+	var id = nextOpenID;
 	var msg;
 	var savedWs = ws;
-	
-	// DEBUG
-	console.log("Nouvelle connection");
-	
-	clients[count] = ws;
+	clients[id] = ws;
 	count++;
+	nextOpenID = count;
 	
 	init(ws,id);
 	
 	allSnakes.addSnake(id);
+	
 				
 	ws.on('message', function(message) {
 		msg = JSON.parse(message);
 		if(msg[0] >= 0) {
 			allSnakes.directions[msg[0]] = msg[1];
-			console.log(allSnakes.directions[0]);
 		}
 		else {
 			console.error("DEBUG error : ID not set : " + msg[0]);
@@ -128,24 +162,20 @@ wss.on('connection', function(ws) {
 	ws.on('close', function() {
 		
 		var indexDC = clients.indexOf(savedWs);
-		console.log("Index removed : " + indexDC);
 		count--;
 		
 		// Sauf dans le cas du dernier joueur connecté
 		if(count != 0)
 		{
-			// Pour éviter les nombreux problêmes liés à la déconnexion de certains clients, on switch le contrôle du snake déconnecté au dernier joueur connecté
-			init(clients[count],indexDC)
-			
 			// On broadcast un signal de déconnection
 			disconnect(indexDC);
 		}
 		
 		// On le retire des tableaux
-		clients.splice(indexDC,1);
-		allSnakes.snakes.splice(indexDC,1);
+		clients[indexDC] = null;
+		allSnakes.snakes[indexDC] = null;
 		
-		console.log('Disconnection : Player ' + indexDC + ' left');
+		console.log('Disconnection : Player ' + (indexDC+1) + ' left');
 	});
 	
 	ws.on('error', function() {

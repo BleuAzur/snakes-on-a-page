@@ -120,24 +120,27 @@ function snake() {
 		
 		for(var i = 0;i < l1;i++)
 		{
-			var j = 0;
-			if(snakes[i] === this)
+			if(snakes[i] !== null)
 			{
-				// Pour ne pas calculer l'auto-collision des premiers cercles d'un snake (se chevauchant normalement)
-				j = 2;
-			}
-		
-			l2 = snakes[i].body.length;
-			for(j;j < l2;j++)
-			{
-				// Calcul distance relative
-				distance = Math.sqrt(
-					((thisHead.center.x - snakes[i].body[j].center.x) * (thisHead.center.x - snakes[i].body[j].center.x))
-					+ ((thisHead.center.y - snakes[i].body[j].center.y) * (thisHead.center.y - snakes[i].body[j].center.y))
-					);
-				if(distance < CIRCLE_RADIUS)
+				var j = 0;
+				if(snakes[i] === this)
 				{
-					collision = true;
+					// Pour ne pas calculer l'auto-collision des premiers cercles d'un snake (se chevauchant normalement)
+					j = 2;
+				}
+			
+				l2 = snakes[i].body.length;
+				for(j;j < l2;j++)
+				{
+					// Calcul distance relative
+					distance = Math.sqrt(
+						((thisHead.center.x - snakes[i].body[j].center.x) * (thisHead.center.x - snakes[i].body[j].center.x))
+						+ ((thisHead.center.y - snakes[i].body[j].center.y) * (thisHead.center.y - snakes[i].body[j].center.y))
+						);
+					if(distance < CIRCLE_RADIUS)
+					{
+						collision = true;
+					}
 				}
 			}
 		}
@@ -158,16 +161,22 @@ function allSnakes () {
 	this.update = function () {
 		for(var i = 0;i < this.snakes.length;i++)
 		{
-			if(this.snakes[i].direction != this.directions[i])
+			if(this.snakes[i] !== null)
 			{
-				this.snakes[i].update(this.directions[i]);
+				if(this.snakes[i].direction != this.directions[i])
+				{
+					this.snakes[i].update(this.directions[i]);
+				}
+				else {this.snakes[i].update(null);}
 			}
-			else {this.snakes[i].update(null);}
 		}
 		// Collision check iteration (Synchronisation des updates avant le check)
 		for(var i = 0;i < this.snakes.length;i++)
 		{
-			this.snakes[i].detectCollisions(this.snakes);
+			if(this.snakes[i] !== null)
+			{
+				this.snakes[i].detectCollisions(this.snakes);
+			}
 		}
 	}
 	

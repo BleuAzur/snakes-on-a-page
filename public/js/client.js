@@ -32,55 +32,62 @@
 	var currentSnake;
 	var message;
 	var players = [];
-	
-	var previousCircles = [];
+	var highestActiveID;
 	
 	// Ici, on reçoit le broadcast du serveur
 	ws.onmessage = function(msg) {
 		
 			message = JSON.parse(msg.data);
-			console.log("Message reçu");
 			
 			tMess = message[0];
-				
+			// Reception de son id depuis le serveur
 			if(tMess === "init")
 			{
 				myID = message[1];
-				console.log("ID Assigned : " + myID);
+				players[message[1]] = 0;
 			}
+			// Broadcast déconnexion d'un joueur
 			else if(tMess === "dc")
 			{
-				console.log('disconnect asserted');
-				players[message[1]] = players[players.length-1];
-				players.splice(players.length-1,1);
+				players[message[1]] = "DC";
 			}
+			// Error case
 			else if(myID === null )
 			{
 				console.error("ID not set : Error");
 			}
+			// Heartbeat du jeu
 			else if(tMess === "game")
-			{
+			{				
 				allSnakesClient.snakes = message[1];
+				highestActiveID = message[2];
 				project.activeLayer.removeChildren();
 				
 				if(allSnakesClient.snakes.length != 0)
 				{
 					for(i = 0;i < allSnakesClient.snakes.length;i++)
 					{
-						currentSnake = allSnakesClient.snakes[i];
-						players[i] = currentSnake.deaths;
-						for(j = 0; j < currentSnake.body.length;j++) {
+						if(allSnakesClient.snakes[i] !== null)
+						{
+							currentSnake = allSnakesClient.snakes[i];
+							players[i] = currentSnake.deaths;
 							
-							circle = new Path.Circle({
-								center : [currentSnake.body[j].center.x,currentSnake.body[j].center.y],
-								radius : CIRCLE_RADIUS,
-								fillColor : playerColor(i)
-							});
+							for(j = 0; j < currentSnake.body.length;j++) {
+								
+								circle = new Path.Circle({
+									center : [currentSnake.body[j].center.x,currentSnake.body[j].center.y],
+									radius : CIRCLE_RADIUS,
+									fillColor : playerColor(i)
+								});
+							}
 						}
 					}
+					
 					htmlUpdate();
 					view.update();
-				}			
+				}
+				
+				
 				else {}
 			}	
 	}
@@ -90,8 +97,14 @@
 		var content = "";
 		for(var i = 0; i < players.length;i++) 
 		{
-			var line = "Player " + (i+1) + " : " + players[i] + " deaths </br>";
-			content += line;
+			if(players[i] === "DC" || players[i] === undefined)
+			{
+			}
+			else
+			{
+				var line = "Player " + (i+1) + " : " + players[i] + " deaths </br>";
+				content += line;
+			}
 		}
 		document.getElementById('deathTab').innerHTML = content
 	}
