@@ -46,11 +46,6 @@
 				myID = message[1];
 				players[message[1]] = 0;
 			}
-			// Broadcast déconnexion d'un joueur
-			else if(tMess === "dc")
-			{
-				players[message[1]] = "DC";
-			}
 			// Error case
 			else if(myID === null )
 			{
@@ -65,7 +60,7 @@
 				
 				if(allSnakesClient.snakes.length != 0)
 				{
-					for(i = 0;i < allSnakesClient.snakes.length;i++)
+					for(var i = 0;i < allSnakesClient.snakes.length;i++)
 					{
 						if(allSnakesClient.snakes[i] !== null)
 						{
@@ -86,25 +81,24 @@
 					htmlUpdate();
 					view.update();
 				}
-				
-				
-				else {}
 			}	
 	}
 	
 	function htmlUpdate() {
-		document.getElementById('playerNumber').innerHTML = '<p>Number of online players : ' + players.length + '</p>';
+		var count = 0;
 		var content = "";
 		for(var i = 0; i < players.length;i++) 
 		{
-			if(players[i] === "DC" || players[i] === undefined)
+			if(allSnakesClient.snakes[i] === null)
 			{
 			}
 			else
 			{
 				var line = "Player " + (i+1) + " : " + players[i] + " deaths </br>";
 				content += line;
+				count++;
 			}
 		}
+		document.getElementById('playerNumber').innerHTML = '<p>Number of online players : ' + count + '</p>';
 		document.getElementById('deathTab').innerHTML = content
 	}

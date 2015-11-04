@@ -94,30 +94,6 @@ function init(client,id) {
 	client.send(JSON.stringify(message));
 }
 
-function disconnect(id) {
-	
-	if(clients.length != 0)
-	{
-		for (var i = 0;i < clients.length;i++)
-		{
-			if(clients[i] === null)
-			{
-			}
-			else if(clients[i].readyState != 1)
-			{
-				console.log("Socket non ouvert : " + i)
-			}
-			else 
-			{				
-				message[0] = "dc";
-				message[1] = id;
-				
-				clients[i].send(JSON.stringify(message));
-			}
-		}
-	}
-}
-
 wss.on('connection', function(ws) {
 	
 	// On récupère le premier ID non utilisé en cas de "trou" suite à une déconnexion
@@ -163,13 +139,6 @@ wss.on('connection', function(ws) {
 		
 		var indexDC = clients.indexOf(savedWs);
 		count--;
-		
-		// Sauf dans le cas du dernier joueur connecté
-		if(count != 0)
-		{
-			// On broadcast un signal de déconnection
-			disconnect(indexDC);
-		}
 		
 		// On le retire des tableaux
 		clients[indexDC] = null;
